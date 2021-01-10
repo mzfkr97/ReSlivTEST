@@ -1,0 +1,46 @@
+{
+  "coord": {
+    "lon": 27.5597,
+    "lat": 53.0274
+  },
+  "weather": [
+    {
+      "id": 600,
+      "main": "Snow",
+      "description": "небольшой снег",
+      "icon": "13d"
+    }
+  ],
+  "base": "stations",
+  "main": {
+    "temp": -0.53,
+    "feels_like": -5.42,
+    "temp_min": -0.53,
+    "temp_max": -0.53,
+    "pressure": 1017,
+    "humidity": 98,
+    "sea_level": 1017,
+    "grnd_level": 998
+  },
+  "visibility": 261,
+  "wind": {
+    "speed": 3.99,
+    "deg": 121
+  },
+  "snow": {
+    "1h": 0.13
+  },
+  "clouds": {
+    "all": 95
+  },
+  "dt": 1609926301,
+  "sys": {
+    "country": "BY",
+    "sunrise": 1609914102,
+    "sunset": 1609942147
+  },
+  "timezone": 10800,
+  "id": 621741,
+  "name": "Слуцк",
+  "cod": 200
+}

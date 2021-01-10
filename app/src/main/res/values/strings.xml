@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">ReSliv Test</string>
+    <string name="title_home">Локация</string>
+    <string name="title_city">Города</string>
+    <string name="title_settings">Настройки</string>
+    <string name="fa_location">\uf041</string>
+    <string name="empty">\uf041</string>
+    <string name="add_city">Введите город</string>
+    <string name="add_button">Добавить</string>
+    <string name="city_will_be_delted">Запись будет удалена!</string>
+    <string name="title_activity_maps">Map</string>
+</resources>
