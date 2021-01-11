@@ -3,30 +3,30 @@ package com.example.reslivtest.util.extensions
 import android.annotation.SuppressLint
 import android.widget.TextView
 import androidx.databinding.BindingAdapter
-import com.example.reslivtest.util.weather_response.WeatherCall
+import com.example.reslivtest.util.database.LocationResponse
 import java.text.SimpleDateFormat
 import java.util.*
 
 
 
 @BindingAdapter("setTextService")
-fun TextView.setTextService(weatherCall: WeatherCall?) {
+fun TextView.setTextService(locationResponse: LocationResponse?) {
 
     val hourPattern = "HH:mm:ss"
     val yearPattern = "dd MMMM"
-    val dateSunrise = weatherCall?.sys?.sunrise?.let { unixToDate(it, hourPattern) }
-    val dateSunset = weatherCall?.sys?.sunset?.let { unixToDate(it, hourPattern) }
-    val date = weatherCall?.sys?.sunset?.let { unixToDate(it, yearPattern) }
+    val dateSunrise = locationResponse?.sunrise?.let { unixToDate(it, hourPattern) }
+    val dateSunset = locationResponse?.sunset?.let { unixToDate(it, hourPattern) }
+    val date = locationResponse?.sunset?.let { unixToDate(it, yearPattern) }
 
     val serviceText = """
-                Страна: ${weatherCall?.sys?.country}
-                Скорость ветра:  ${weatherCall?.wind?.speed.toString()}  м/с
+                Страна: ${locationResponse?.country}
+                Скорость ветра:  ${locationResponse?.windSpeed.toString()}  м/с
                 Рассвет: $dateSunrise
                 Закат: $dateSunset
                 Дата: $date
              
                """.trimIndent()
-    weatherCall?.let {
+    locationResponse?.let {
         text = serviceText
     }
 }

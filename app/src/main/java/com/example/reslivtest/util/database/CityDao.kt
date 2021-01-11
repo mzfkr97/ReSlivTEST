@@ -26,16 +26,25 @@ interface CityDao {
     @Query("DELETE FROM city_table")
     fun nukeTable()
 
+    //Location data, coordinate
+//
+//
+//    @Insert(onConflict = OnConflictStrategy.REPLACE)
+//    fun saveLocation(locationData: LocationData)
+//
+//    @Query("SELECT * FROM location_table WHERE id=:id")
+//    fun getLastLocation(id: Long): LiveData<LocationData?>
+//
+//    @Query("SELECT * FROM location_table")
+//    fun getAllLocation(): LiveData<List<LocationData>>
+
+    //LocationResponce Data "location_response"
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun saveLocation(locationData: LocationData)
+    fun saveLocationResponse(locationResponse: LocationResponse)
 
-    @Query("SELECT * FROM location_table WHERE id=:id")
-    fun getLastLocation(id: Long): LiveData<LocationData?>
-
-    @Query("SELECT * FROM location_table")
-    fun getAllLocation(): LiveData<List<LocationData>>
-
+    @Query("SELECT * FROM location_response WHERE id=:id")
+    fun getLocationResponseFromId(id: Long): LiveData<LocationResponse?>
 
 
 

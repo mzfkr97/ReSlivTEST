@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 
 @Database(
-    entities = [CityData::class, LocationData::class],
+    entities = [CityData::class, LocationData::class, LocationResponse::class],
     version = 1,
     exportSchema = false)
     @TypeConverters(CityTypeConverters::class)
@@ -17,11 +17,9 @@ abstract class CityDatabase: RoomDatabase() {
     abstract fun cityDao(): CityDao
 
     companion object {
-
         @Volatile
         private var INSTANCE: CityDatabase? = null
         private var LOCK = Any()
-
         operator fun invoke (context: Context) = INSTANCE ?: synchronized(LOCK){
             INSTANCE ?: createDataBase(context).also { INSTANCE = it }
         }

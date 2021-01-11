@@ -4,7 +4,7 @@ package com.example.reslivtest.ui.main
 import android.util.Log
 import androidx.lifecycle.*
 import com.example.reslivtest.util.application.MyApplication
-import com.example.reslivtest.util.database.LocationData
+import com.example.reslivtest.util.database.LocationResponse
 import com.example.reslivtest.util.repo.WeatherResponse
 import com.example.reslivtest.util.weather_response.WeatherCall
 import com.google.android.gms.maps.model.LatLng
@@ -20,32 +20,28 @@ class MainViewModel(
     private var weatherLiveData: MutableLiveData<WeatherResponse<WeatherCall?>?>? = null
     private val locationIdLiveData = MutableLiveData<Long>()
 
-
-
-    var lastLocationLiveData: LiveData<LocationData?> =
+    var lastDBLocationLiveData: LiveData<LocationResponse?> =
         Transformations.switchMap(locationIdLiveData) { locationId ->
             Log.d("TAG", "Transformations: ")
             repository.getLastLocation(locationId)
         }
 
     fun loadLocationFromId(locationId: Long) {
-        Log.d("TAG", "loadLocationFromId: ")
         locationIdLiveData.value = locationId
     }
 
-    fun saveCurrentLocation(locationData: LocationData) {
-        repository.saveLocation(locationData)
+    fun saveCurrentLocationInDB(locationResponse: LocationResponse) {
+        repository.saveLocationResponse(locationResponse)
     }
 
-    fun loadLatLngFromMap(latLng: LatLng) {
-        Log.d("TAG", "loadLatLngFromMap: ")
+    fun setPositionOnMapView(latLng: LatLng) {
         locationLiveData.postValue(latLng)
     }
 
 
-    fun loadWeather(locationData: LocationData): LiveData<WeatherResponse<WeatherCall?>?>? {
+    fun loadWeather(latitude: Double, longitude: Double): LiveData<WeatherResponse<WeatherCall?>?>? {
         weatherLiveData = MutableLiveData<WeatherResponse<WeatherCall?>?>()
-        getWeatherList(latitude = locationData.latitude, longitude = locationData.longitude)
+        getWeatherList(latitude = latitude, longitude = longitude)
         return weatherLiveData
     }
 

@@ -9,8 +9,8 @@
         <import type="android.text.TextUtils" />
 
         <variable
-            name="temperature"
-            type="com.example.reslivtest.util.weather_response.WeatherCall" />
+            name="locationResponse"
+            type="com.example.reslivtest.util.database.LocationResponse" />
 
 
     </data>
@@ -56,7 +56,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:layout_marginTop="8dp"
-                    android:text="@{temperature.name}"
+                    android:text="@{locationResponse.description}"
                     android:textSize="30sp"
                     app:layout_constraintEnd_toStartOf="@+id/tvTemp"
                     app:layout_constraintStart_toEndOf="@+id/text_dot_1"
@@ -86,7 +86,7 @@
                     app:layout_constraintBottom_toTopOf="@+id/getOpenWeatherTextView"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/cityField"
-                    app:loadImageWithUrl="@{temperature.iconUrl}"
+                    app:loadImageWithUrl="@{locationResponse.icon}"
                     app:srcCompat="@drawable/weather_placeholder"
                     tools:ignore="ContentDescription" />
 
@@ -98,7 +98,7 @@
                     android:layout_marginStart="8dp"
                     android:layout_marginBottom="4dp"
                     android:autoLink="none"
-                    android:text="@{temperature.description}"
+                    android:text="@{locationResponse.description}"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     tools:ignore="SmallSp"
@@ -113,7 +113,6 @@
                     android:layout_marginTop="8dp"
                     android:layout_marginEnd="8dp"
                     android:fontFamily="sans-serif-smallcaps"
-                    android:text="@{TextUtils.isEmpty(temperature.tempWithDegree) ? @string/empty : temperature.tempWithDegree  + ` ℃`}"
                     android:textColor="?attr/colorAccent"
                     android:textSize="36sp"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -134,7 +133,7 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@+id/getOpenWeatherTextView"
                     app:layout_constraintTop_toBottomOf="@+id/tvTemp"
-                    app:setTextService="@{temperature}"
+                    app:setTextService="@{locationResponse}"
                     tools:text="Скорость ветра" />
 
 

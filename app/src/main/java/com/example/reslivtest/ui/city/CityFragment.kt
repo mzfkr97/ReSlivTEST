@@ -1,6 +1,7 @@
 package com.example.reslivtest.ui.city
 
 import android.annotation.SuppressLint
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.View
 import android.widget.EditText
@@ -29,6 +30,7 @@ class CityFragment :
     private lateinit var cityAdapter: CityAdapter
     private lateinit var binding: FragmentCityBinding
     private lateinit var viewModel : CityViewModel
+    private lateinit var preferences: SharedPreferences
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -36,6 +38,8 @@ class CityFragment :
         val mainRepository = CityRepository(CityDatabase(activity as MainActivity))
         val mainViewModelFactory = CityModelFactory(mainRepository)
         viewModel =  ViewModelProvider(this, mainViewModelFactory).get(CityViewModel::class.java)
+
+
         updateUI()
 
         binding.buttonAddCity.setOnClickListener {
@@ -122,7 +126,7 @@ class CityFragment :
                         is WeatherResponse.Success -> {
                             response.data?.let { weatherResponse ->
                                 showProgress(false, binding.weatherLayout.progressBarWeather)
-                                binding.weatherLayout.temperature = weatherResponse
+                              //  binding.weatherLayout.locationResponse = weatherResponse
                                 activity?.showToastyInfo("Данные загружены!")
                             }
                         }

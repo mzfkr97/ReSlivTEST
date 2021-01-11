@@ -8,7 +8,7 @@
 
         <variable
             name="temperature"
-            type="com.example.reslivtest.util.weather_response.WeatherCall" />
+            type="com.example.reslivtest.util.database.LocationResponse" />
 
 
     </data>
@@ -21,7 +21,7 @@
 
         <include
             android:id="@+id/weather_item"
-            layout="@layout/weather_item_weather"
+            layout="@layout/item_weather"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             app:layout_constraintEnd_toEndOf="parent"

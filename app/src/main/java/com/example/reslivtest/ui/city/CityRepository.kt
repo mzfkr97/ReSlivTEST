@@ -15,13 +15,9 @@ class CityRepository(
     private val executor = Executors.newSingleThreadExecutor()
     private val weatherDao = database.cityDao()
 
-
-
     fun getAllCityList(): LiveData<List<CityData>> = weatherDao.getAllCity()
 
-
     fun getCity(id: UUID): LiveData<CityData?> = weatherDao.getCity(id)
-
 
     fun updateCity(city: CityData) {
         executor.execute {
@@ -35,13 +31,11 @@ class CityRepository(
         }
     }
 
-
     fun deleteCity(city: CityData) {
         executor.execute {
             weatherDao.delete(city)
         }
     }
-
 
     fun deleteDatabase() {
         executor.execute {

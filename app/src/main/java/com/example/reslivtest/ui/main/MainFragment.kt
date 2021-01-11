@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.location.LocationManager
 import android.os.Build
 import android.os.Bundle
@@ -15,17 +16,15 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.work.OneTimeWorkRequest
-import androidx.work.WorkInfo
-import androidx.work.WorkManager
+import androidx.work.*
 import com.example.reslivtest.MainActivity
 import com.example.reslivtest.R
 import com.example.reslivtest.databinding.FragmentMainBinding
+import com.example.reslivtest.util.*
 import com.example.reslivtest.util.Constants.REQUEST_LOCATION_PERMISSION
-import com.example.reslivtest.util.LocationUtility
-import com.example.reslivtest.util.WorkerManager
 import com.example.reslivtest.util.database.CityDatabase
-import com.example.reslivtest.util.database.LocationData
+import com.example.reslivtest.util.database.DataBaseLocationConverter
+import com.example.reslivtest.util.database.LocationResponse
 import com.example.reslivtest.util.extensions.checkViewVisibleOrGone
 import com.example.reslivtest.util.extensions.showToastyError
 import com.example.reslivtest.util.extensions.showToastyInfo
@@ -41,6 +40,7 @@ import com.google.android.gms.maps.model.MarkerOptions
 import kotlinx.android.synthetic.main.fragment_main.*
 import pub.devrel.easypermissions.AppSettingsDialog
 import pub.devrel.easypermissions.EasyPermissions
+import java.util.concurrent.TimeUnit
 
 
 class MainFragment :
@@ -50,9 +50,11 @@ class MainFragment :
 
     private lateinit var binding: FragmentMainBinding
     private lateinit var viewModelCity: MainViewModel
-    private lateinit var locationData: LocationData
+    private lateinit var locationResponse: LocationResponse
     private var mMap: GoogleMap? = null
     private lateinit var latLng: LatLng
+    private lateinit var sharedPreferences: SharedPreferences
+    private var updateTime: String = "refresh_minutes"
 
     @SuppressLint("MissingPermission")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -66,6 +68,10 @@ class MainFragment :
         checkLocation()
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
         mapFragment?.getMapAsync(this)
+
+
+        val isPolling = WorkerPreferences.isActive(requireContext())
+        Log.d("TAG", "dateTimeKey: $isPolling")
     }
 
 
@@ -75,27 +81,66 @@ class MainFragment :
             showAlertLocation()
         }
 
+        MyLocationManager(context as MainActivity).updateLocation()
+
+        loadLocationWeatherTODatabase()
+
+        createPeriodicWorker()
+//
+//
+//        val workRequest = OneTimeWorkRequest.Builder(WorkerManager::class.java).build()
+//        val mWorkManager = WorkManager.getInstance(activity as MainActivity)
+//        mWorkManager.getWorkInfoByIdLiveData(workRequest.id).observe(viewLifecycleOwner,
+//            Observer { workStatus ->
+//                if (workStatus != null && workStatus.state == WorkInfo.State.SUCCEEDED) {
+//                    loadLocationWeatherFromDatabase()
+//                }
+//            })
+//        mWorkManager.beginWith(workRequest).enqueue()
+    }
+
+    private fun createWorker() {
         val workRequest = OneTimeWorkRequest.Builder(WorkerManager::class.java).build()
         val mWorkManager = WorkManager.getInstance(activity as MainActivity)
         mWorkManager.getWorkInfoByIdLiveData(workRequest.id).observe(viewLifecycleOwner,
             Observer { workStatus ->
                 if (workStatus != null && workStatus.state == WorkInfo.State.SUCCEEDED) {
-                    loadLocationWeatherFromDatabase()
+                    loadLocationWeatherTODatabase()
                 }
             })
         mWorkManager.beginWith(workRequest).enqueue()
     }
 
-    private fun loadLocationWeatherFromDatabase() {
-        viewModelCity.lastLocationLiveData.observe(
+
+    private fun createPeriodicWorker(){
+        val periodicRequest = PeriodicWorkRequest.Builder(WorkerManager::class.java, 15, TimeUnit.MINUTES).build()
+        val workManager = WorkManager.getInstance(activity as MainActivity)
+        workManager
+            .getWorkInfoByIdLiveData(periodicRequest.id)
+            .observe(viewLifecycleOwner, Observer { workStatus ->
+                if (workStatus != null && workStatus.state == WorkInfo.State.SUCCEEDED) {
+                    Log.d("TAG", "viewLifecycleOwner: ")
+                    loadLocationWeatherTODatabase()
+                }
+            })
+        workManager.enqueueUniquePeriodicWork(
+            Constants.WORKER_TAG,
+            ExistingPeriodicWorkPolicy.KEEP,
+            periodicRequest
+        )
+    }
+
+    private fun loadLocationWeatherTODatabase() {
+        viewModelCity.lastDBLocationLiveData.observe(
             viewLifecycleOwner, Observer { location ->
                 location?.let {
-                    this.locationData = location
-                    loadWeather(locationData)
-                    viewModelCity.saveCurrentLocation(locationData)
+                    this.locationResponse = location
+                    binding.weatherItem.locationResponse = locationResponse
+                    loadWeather(locationResponse)
+                    viewModelCity.saveCurrentLocationInDB(locationResponse)
                     val latLng = LatLng(location.latitude, location.longitude)
-                    viewModelCity.loadLatLngFromMap(latLng)
-                    viewModelCity.lastLocationLiveData.removeObservers(viewLifecycleOwner)
+                    viewModelCity.setPositionOnMapView(latLng)
+                    viewModelCity.lastDBLocationLiveData.removeObservers(viewLifecycleOwner)
                 }
             })
         viewModelCity.loadLocationFromId(1)
@@ -117,15 +162,16 @@ class MainFragment :
 
 
     @SuppressLint("SetTextI18n")
-    private fun loadWeather(locationData: LocationData) {
-        viewModelCity.loadWeather(locationData)
+    private fun loadWeather(locationResponse: LocationResponse) {
+        viewModelCity.loadWeather(locationResponse.latitude, locationResponse.longitude)
             ?.observe(viewLifecycleOwner, Observer { response ->
                 when (response) {
                     is WeatherResponse.Success -> {
                         response.data?.let { weatherResponse ->
                             showProgress(false, binding.weatherItem.progressBarWeather)
-                            binding.weatherItem.temperature = weatherResponse
-                            Log.d("TAG", "WeatherResponse")
+                            activity?.let {
+                                DataBaseLocationConverter(it).convertDataToDataBase(weatherResponse)
+                            }
                             activity?.showToastyInfo(getString(R.string.data_is_loading))
                         }
                     }
