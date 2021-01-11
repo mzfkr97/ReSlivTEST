@@ -7,11 +7,6 @@ import android.graphics.Color
 class ColorMaker(
     val context: Context
 ) {
-
-    /*
-     возвращает случайный цвет из массива
-    holder.text_dot.setTextColor(new ColorMaker(mContext).getRandomMaterialColor("400" ));
-    */
     fun getRandomMaterialColor(typeColor: String): Int {
         var returnColor = Color.GRAY
         val arrayId = context.resources
@@ -24,5 +19,4 @@ class ColorMaker(
         }
         return returnColor
     }
-
 }

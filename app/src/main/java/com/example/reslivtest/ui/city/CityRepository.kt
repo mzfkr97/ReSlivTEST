@@ -5,7 +5,6 @@ import com.example.reslivtest.util.Constants
 import com.example.reslivtest.util.database.CityData
 import com.example.reslivtest.util.database.CityDatabase
 import com.example.reslivtest.util.network.RetrofitInstance
-import java.util.*
 import java.util.concurrent.Executors
 
 class CityRepository(
@@ -16,14 +15,6 @@ class CityRepository(
     private val weatherDao = database.cityDao()
 
     fun getAllCityList(): LiveData<List<CityData>> = weatherDao.getAllCity()
-
-    fun getCity(id: UUID): LiveData<CityData?> = weatherDao.getCity(id)
-
-    fun updateCity(city: CityData) {
-        executor.execute {
-            weatherDao.updateCity(city)
-        }
-    }
 
     fun addCity(city: CityData) {
         executor.execute {
@@ -36,13 +27,6 @@ class CityRepository(
             weatherDao.delete(city)
         }
     }
-
-    fun deleteDatabase() {
-        executor.execute {
-            weatherDao.nukeTable()
-        }
-    }
-
 
     suspend fun requestWeatherFromLCityName(cityName: String) =
         RetrofitInstance().weatherAPI.getWeatherByCityName(

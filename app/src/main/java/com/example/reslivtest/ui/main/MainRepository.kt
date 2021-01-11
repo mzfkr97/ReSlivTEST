@@ -12,6 +12,11 @@ class MainRepository(
         val database: CityDatabase
 ) {
 
+    companion object {
+        const val lang = "ru"
+        const val units = "metric"
+    }
+
     private val executor = Executors.newSingleThreadExecutor()
     private val weatherDao = database.cityDao()
 
@@ -31,9 +36,6 @@ class MainRepository(
                     Constants.KEY_WEATHER
             )
 
-    companion object {
-        const val lang = "ru"
-        const val units = "metric"
-    }
+
 
 }

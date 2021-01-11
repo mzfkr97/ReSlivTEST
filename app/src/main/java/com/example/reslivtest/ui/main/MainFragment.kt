@@ -5,7 +5,6 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.location.LocationManager
 import android.os.Build
 import android.os.Bundle
@@ -55,8 +54,6 @@ class MainFragment :
     private lateinit var locationResponse: LocationResponse
     private var mMap: GoogleMap? = null
     private lateinit var latLng: LatLng
-    private lateinit var sharedPreferences: SharedPreferences
-    private var updateTime: String = "refresh_minutes"
 
     @SuppressLint("MissingPermission")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -244,7 +241,7 @@ class MainFragment :
     override fun onPause() {
         map?.onPause()
         super.onPause()
-        MyLocationManager(context as MainActivity).stopLocationUpdate()
+
     }
 
 

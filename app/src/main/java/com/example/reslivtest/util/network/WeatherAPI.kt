@@ -27,16 +27,6 @@ interface WeatherAPI {
         @Query("appid") appId: String
     ): Response<WeatherCall>
 
-    @GET("weather")
-    suspend fun getWeatherLocation(
-        @Query("lat") latitude: Double,
-        @Query("lon") longitude: Double,
-        @Query("lang") lang: String,
-        @Query("units") units: String,
-        @Query("appid") appId: String
-    ): Response<WeatherCall>
-
-
 
     @GET("weather")
     suspend fun getWeatherByCityName(

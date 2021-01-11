@@ -39,7 +39,6 @@ class CityFragment :
         val mainViewModelFactory = CityModelFactory(mainRepository)
         viewModel =  ViewModelProvider(this, mainViewModelFactory).get(CityViewModel::class.java)
 
-
         updateUI()
 
         binding.buttonAddCity.setOnClickListener {

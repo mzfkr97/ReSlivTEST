@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 
 @Database(
-    entities = [CityData::class, LocationData::class, LocationResponse::class],
+    entities = [CityData::class, LocationResponse::class],
     version = 1,
     exportSchema = false)
     @TypeConverters(CityTypeConverters::class)

@@ -55,7 +55,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:layout_marginTop="8dp"
-                    android:text="@{locationResponse.description}"
+                    android:text="@{locationResponse.name}"
                     android:textSize="30sp"
                     app:layout_constraintEnd_toStartOf="@+id/tvTemp"
                     app:layout_constraintStart_toEndOf="@+id/text_dot_1"
@@ -110,6 +110,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
+                    android:text="@{TextUtils.isEmpty(locationResponse.tempWithDegree) ? @string/empty : locationResponse.tempWithDegree  + ` ℃`}"
+
                     android:layout_marginEnd="8dp"
                     android:fontFamily="sans-serif-smallcaps"
                     android:textColor="?attr/colorAccent"
