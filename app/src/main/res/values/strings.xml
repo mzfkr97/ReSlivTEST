@@ -10,7 +10,7 @@
     <string name="city_will_be_delted">Запись будет удалена!</string>
     <string name="title_activity_maps">Map</string>
     <string name="error_from_download_data">Ошибка при загрузке данных!</string>
-    <string name="data_is_loading">Данные загружены!</string>
+    <string name="data_is_loading">Данные обновлены!</string>
     <!-- Preference Titles -->
     <string name="messages_header">Основные</string>
     <string name="sync_header">Sync</string>

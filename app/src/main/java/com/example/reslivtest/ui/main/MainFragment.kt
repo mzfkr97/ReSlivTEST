@@ -80,13 +80,14 @@ class MainFragment :
         if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             showAlertLocation()
         }
-        MyLocationManager(context as MainActivity).updateLocation()
+        LocationHelper(context as MainActivity).updateLocation()
         loadLocationWeatherTODatabase()
 
     }
 
     private fun createPeriodicWorker(){
-        val periodicRequest = PeriodicWorkRequest.Builder(WorkerManager::class.java, 15, TimeUnit.MINUTES).build()
+        val periodicRequest = PeriodicWorkRequest
+            .Builder(WorkerManager::class.java, 1, TimeUnit.HOURS).build()
         val workManager = WorkManager.getInstance(activity as MainActivity)
         workManager
             .getWorkInfoByIdLiveData(periodicRequest.id)
@@ -248,7 +249,7 @@ class MainFragment :
     override fun onResume() {
         map?.onResume()
         super.onResume()
-        MyLocationManager(context as MainActivity).updateLocation()
+        LocationHelper(context as MainActivity).updateLocation()
     }
 
     override fun onLowMemory() {
