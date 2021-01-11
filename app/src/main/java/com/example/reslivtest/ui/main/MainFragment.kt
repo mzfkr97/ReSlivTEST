@@ -10,13 +10,15 @@ import android.location.LocationManager
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
-import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.work.*
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.PeriodicWorkRequest
+import androidx.work.WorkInfo
+import androidx.work.WorkManager
 import com.example.reslivtest.MainActivity
 import com.example.reslivtest.R
 import com.example.reslivtest.databinding.FragmentMainBinding
@@ -28,8 +30,8 @@ import com.example.reslivtest.util.database.LocationResponse
 import com.example.reslivtest.util.extensions.checkViewVisibleOrGone
 import com.example.reslivtest.util.extensions.showToastyError
 import com.example.reslivtest.util.extensions.showToastyInfo
-import com.example.reslivtest.util.repo.MainModelFactory
-import com.example.reslivtest.util.repo.WeatherResponse
+import com.example.reslivtest.util.network.WeatherResponse
+import com.example.reslivtest.util.response.MainModelFactory
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -69,9 +71,10 @@ class MainFragment :
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
         mapFragment?.getMapAsync(this)
 
-
-        val isPolling = WorkerPreferences.isActive(requireContext())
-        Log.d("TAG", "dateTimeKey: $isPolling")
+        val isPolling = WorkerPreferences.workerIsEnable(requireContext())
+        when(isPolling == "yes"){
+            true ->{ createPeriodicWorker() }
+        }
     }
 
 
@@ -80,37 +83,10 @@ class MainFragment :
         if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             showAlertLocation()
         }
-
         MyLocationManager(context as MainActivity).updateLocation()
-
         loadLocationWeatherTODatabase()
 
-        createPeriodicWorker()
-//
-//
-//        val workRequest = OneTimeWorkRequest.Builder(WorkerManager::class.java).build()
-//        val mWorkManager = WorkManager.getInstance(activity as MainActivity)
-//        mWorkManager.getWorkInfoByIdLiveData(workRequest.id).observe(viewLifecycleOwner,
-//            Observer { workStatus ->
-//                if (workStatus != null && workStatus.state == WorkInfo.State.SUCCEEDED) {
-//                    loadLocationWeatherFromDatabase()
-//                }
-//            })
-//        mWorkManager.beginWith(workRequest).enqueue()
     }
-
-    private fun createWorker() {
-        val workRequest = OneTimeWorkRequest.Builder(WorkerManager::class.java).build()
-        val mWorkManager = WorkManager.getInstance(activity as MainActivity)
-        mWorkManager.getWorkInfoByIdLiveData(workRequest.id).observe(viewLifecycleOwner,
-            Observer { workStatus ->
-                if (workStatus != null && workStatus.state == WorkInfo.State.SUCCEEDED) {
-                    loadLocationWeatherTODatabase()
-                }
-            })
-        mWorkManager.beginWith(workRequest).enqueue()
-    }
-
 
     private fun createPeriodicWorker(){
         val periodicRequest = PeriodicWorkRequest.Builder(WorkerManager::class.java, 15, TimeUnit.MINUTES).build()
@@ -119,7 +95,6 @@ class MainFragment :
             .getWorkInfoByIdLiveData(periodicRequest.id)
             .observe(viewLifecycleOwner, Observer { workStatus ->
                 if (workStatus != null && workStatus.state == WorkInfo.State.SUCCEEDED) {
-                    Log.d("TAG", "viewLifecycleOwner: ")
                     loadLocationWeatherTODatabase()
                 }
             })
@@ -148,12 +123,12 @@ class MainFragment :
 
     private fun showAlertLocation() {
         val dialog = AlertDialog.Builder(context as Activity)
-        dialog.setMessage("В настройках вашего местоположения установлено значение Выкл., Пожалуйста, включите местоположение, чтобы использовать это приложение.")
-        dialog.setPositiveButton("Настройки") { _, _ ->
+        dialog.setMessage(getString(R.string.location_is_disable))
+        dialog.setPositiveButton(getString(R.string.title_settings)) { _, _ ->
             val myIntent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
             startActivity(myIntent)
         }
-        dialog.setNegativeButton("Отмена") { _, _ ->
+        dialog.setNegativeButton(getString(R.string.cancell)) { _, _ ->
             activity?.finish()
         }
         dialog.setCancelable(true)
@@ -170,7 +145,10 @@ class MainFragment :
                         response.data?.let { weatherResponse ->
                             showProgress(false, binding.weatherItem.progressBarWeather)
                             activity?.let {
-                                DataBaseLocationConverter(it).convertDataToDataBase(weatherResponse)
+                                DataBaseLocationConverter(it)
+                                    .convertDataToDataBase(
+                                        weatherResponse
+                                    )
                             }
                             activity?.showToastyInfo(getString(R.string.data_is_loading))
                         }
@@ -199,15 +177,15 @@ class MainFragment :
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
             EasyPermissions.requestPermissions(
                 this,
-                "Чтобы использовать это приложение, вам необходимо принять разрешения на местоположение",
-                REQUEST_LOCATION_PERMISSION,
+                getString(R.string.need_access_to_location),
+               REQUEST_LOCATION_PERMISSION,
                 Manifest.permission.ACCESS_COARSE_LOCATION,
                 Manifest.permission.ACCESS_FINE_LOCATION
             )
         } else {
             EasyPermissions.requestPermissions(
                 this,
-                "Чтобы использовать это приложение, вам необходимо принять разрешения на местоположение",
+                getString(R.string.need_access_to_location),
                 REQUEST_LOCATION_PERMISSION,
                 Manifest.permission.ACCESS_COARSE_LOCATION,
                 Manifest.permission.ACCESS_FINE_LOCATION,
@@ -254,7 +232,7 @@ class MainFragment :
                     addMarker(
                         MarkerOptions()
                             .position(latLng)
-                            .title("Marker in Sydney")
+                            .title(getString(R.string.you_is_here))
                     )
                     moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 10f))
 
@@ -266,14 +244,14 @@ class MainFragment :
     override fun onPause() {
         map?.onPause()
         super.onPause()
-        // stopLocationUpdates()
+        MyLocationManager(context as MainActivity).stopLocationUpdate()
     }
 
 
     override fun onResume() {
         map?.onResume()
         super.onResume()
-        //checkLocation()
+        MyLocationManager(context as MainActivity).updateLocation()
     }
 
     override fun onLowMemory() {

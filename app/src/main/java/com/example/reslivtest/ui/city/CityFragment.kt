@@ -20,7 +20,7 @@ import com.example.reslivtest.util.database.CityDatabase
 import com.example.reslivtest.util.extensions.checkViewVisibleOrGone
 import com.example.reslivtest.util.extensions.showToastyError
 import com.example.reslivtest.util.extensions.showToastyInfo
-import com.example.reslivtest.util.repo.WeatherResponse
+import com.example.reslivtest.util.network.WeatherResponse
 import com.google.android.material.snackbar.Snackbar
 import java.util.*
 
@@ -126,7 +126,7 @@ class CityFragment :
                         is WeatherResponse.Success -> {
                             response.data?.let { weatherResponse ->
                                 showProgress(false, binding.weatherLayout.progressBarWeather)
-                              //  binding.weatherLayout.locationResponse = weatherResponse
+                                binding.weatherLayout.temperature = weatherResponse
                                 activity?.showToastyInfo("Данные загружены!")
                             }
                         }
@@ -146,13 +146,6 @@ class CityFragment :
 
     private fun showProgress(show: Boolean, view: View) {
         checkViewVisibleOrGone(show, view)
-    }
-
-
-    fun dropDataBase(){
-        viewModel.deleteAll()
-        binding.cityRecycler.layoutManager = LinearLayoutManager(activity)
-        cityAdapter.notifyDataSetChanged()
     }
 
 }

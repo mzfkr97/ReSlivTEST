@@ -3,7 +3,7 @@
     <PreferenceCategory app:title="@string/messages_header">
 
         <ListPreference
-            app:defaultValue="refresh_minutes"
+            app:defaultValue="no"
             app:entries="@array/update_entries"
             app:entryValues="@array/refresh_values"
             app:key="refresh_values"

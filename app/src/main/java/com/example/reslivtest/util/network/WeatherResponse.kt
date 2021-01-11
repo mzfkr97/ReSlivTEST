@@ -1,4 +1,4 @@
-package com.example.reslivtest.util.repo
+package com.example.reslivtest.util.network
 
 sealed class WeatherResponse<T> (
     val data: T? = null,

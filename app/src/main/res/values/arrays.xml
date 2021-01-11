@@ -1,12 +1,12 @@
 <resources>
     <!-- Reply Preference -->
     <string-array name="update_entries">
-        <item>Каждые 15 минут</item>
+        <item>Нет</item>
         <item>Каждый час</item>
     </string-array>
 
     <string-array name="refresh_values">
-        <item>refresh_minutes</item>
-        <item>refresh_hour</item>
+        <item>no</item>
+        <item>yes</item>
     </string-array>
 </resources>

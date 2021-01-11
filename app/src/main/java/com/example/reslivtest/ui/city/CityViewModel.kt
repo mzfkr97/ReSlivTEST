@@ -2,7 +2,7 @@ package com.example.reslivtest.ui.city
 
 import androidx.lifecycle.*
 import com.example.reslivtest.util.database.CityData
-import com.example.reslivtest.util.repo.WeatherResponse
+import com.example.reslivtest.util.network.WeatherResponse
 import com.example.reslivtest.util.weather_response.WeatherCall
 import kotlinx.coroutines.launch
 import retrofit2.Response

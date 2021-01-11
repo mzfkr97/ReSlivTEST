@@ -1,4 +1,4 @@
-package com.example.reslivtest.ui.notifications
+package com.example.reslivtest.ui.settings
 
 import android.content.SharedPreferences
 import android.os.Bundle
@@ -9,6 +9,7 @@ import androidx.preference.PreferenceManager
 import com.example.reslivtest.R
 import com.example.reslivtest.util.Constants
 import com.example.reslivtest.util.database.CityDatabase
+import com.example.reslivtest.util.extensions.showToastyError
 import com.example.reslivtest.util.extensions.showToastyInfo
 import java.util.concurrent.Executors
 
@@ -54,7 +55,7 @@ class SettingsFragment :
         executor.execute {
             database.cityDao().nukeTable()
         }
-        activity?.showToastyInfo(getString(R.string.data_base_dropped))
+        activity?.showToastyError(getString(R.string.data_base_dropped))
     }
 
     override fun onSharedPreferenceChanged(preference: SharedPreferences?, key: String?) {
@@ -62,5 +63,4 @@ class SettingsFragment :
             Constants.TIME_REFRESH_DATA -> activity?.showToastyInfo(getString(R.string.time_changed))
         }
     }
-
 }

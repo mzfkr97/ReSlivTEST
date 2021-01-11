@@ -17,7 +17,7 @@
 
     <!-- Messages Preferences -->
     <string name="signature_title">Your signature</string>
-    <string name="update_time">Частота обновления</string>
+    <string name="update_time">Обновлять в фоне</string>
 
     <!-- Sync Preferences -->
     <string name="sync_title">Sync email periodically</string>
@@ -27,4 +27,8 @@
     <string name="attachment_summary_off">Only download attachments when manually requested</string>
     <string name="data_base_dropped">База данных удалена</string>
     <string name="time_changed">Время изменено</string>
+    <string name="location_is_disable">В настройках вашего местоположения установлено значение Выкл., Пожалуйста, включите местоположение, чтобы использовать это приложение.</string>
+    <string name="cancell">Отмена</string>
+    <string name="need_access_to_location">Чтобы использовать это приложение, вам необходимо принять разрешения на местоположение</string>
+    <string name="you_is_here">Ваше местоположение</string>
 </resources>

@@ -15,11 +15,6 @@ class MainRepository(
     private val executor = Executors.newSingleThreadExecutor()
     private val weatherDao = database.cityDao()
 
-//    fun saveLocation(locationData: LocationData) {
-//        executor.execute {
-//            weatherDao.saveLocation(locationData)
-//        }
-//    }
     fun getLastLocation(id: Long): LiveData<LocationResponse?> = weatherDao.getLocationResponseFromId(id)
 
     fun saveLocationResponse(locationResponse: LocationResponse){

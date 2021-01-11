@@ -5,7 +5,7 @@ import android.util.Log
 import androidx.lifecycle.*
 import com.example.reslivtest.util.application.MyApplication
 import com.example.reslivtest.util.database.LocationResponse
-import com.example.reslivtest.util.repo.WeatherResponse
+import com.example.reslivtest.util.network.WeatherResponse
 import com.example.reslivtest.util.weather_response.WeatherCall
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.launch

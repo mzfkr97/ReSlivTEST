@@ -1,4 +1,4 @@
-package com.example.reslivtest.util.repo
+package com.example.reslivtest.util.response
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
