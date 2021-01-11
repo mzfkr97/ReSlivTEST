@@ -6,14 +6,16 @@ import android.view.View
 import android.widget.EditText
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.reslivtest.MainActivity
 import com.example.reslivtest.R
-import com.example.reslivtest.databinding.FragmentDashboardBinding
+import com.example.reslivtest.databinding.FragmentCityBinding
 import com.example.reslivtest.ui.city.adapter.CityAdapter
 import com.example.reslivtest.util.database.CityData
+import com.example.reslivtest.util.database.CityDatabase
 import com.example.reslivtest.util.extensions.checkViewVisibleOrGone
 import com.example.reslivtest.util.extensions.showToastyError
 import com.example.reslivtest.util.extensions.showToastyInfo
@@ -22,17 +24,18 @@ import com.google.android.material.snackbar.Snackbar
 import java.util.*
 
 class CityFragment :
-    Fragment(R.layout.fragment_dashboard) {
+    Fragment(R.layout.fragment_city) {
 
     private lateinit var cityAdapter: CityAdapter
-    private lateinit var binding: FragmentDashboardBinding
-    lateinit var viewModel : CityViewModel
+    private lateinit var binding: FragmentCityBinding
+    private lateinit var viewModel : CityViewModel
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding = FragmentDashboardBinding.bind(view)
-        viewModel = (activity as MainActivity).viewModel
-
+        binding = FragmentCityBinding.bind(view)
+        val mainRepository = CityRepository(CityDatabase(activity as MainActivity))
+        val mainViewModelFactory = CityModelFactory(mainRepository)
+        viewModel =  ViewModelProvider(this, mainViewModelFactory).get(CityViewModel::class.java)
         updateUI()
 
         binding.buttonAddCity.setOnClickListener {

@@ -2,8 +2,8 @@ package com.example.reslivtest.util.repo
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.example.reslivtest.ui.home.MainRepository
-import com.example.reslivtest.ui.home.MainViewModel
+import com.example.reslivtest.ui.main.MainRepository
+import com.example.reslivtest.ui.main.MainViewModel
 
 class MainModelFactory(
     private val repository: MainRepository

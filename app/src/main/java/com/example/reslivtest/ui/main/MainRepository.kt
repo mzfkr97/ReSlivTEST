@@ -1,4 +1,4 @@
-package com.example.reslivtest.ui.home
+package com.example.reslivtest.ui.main
 
 import androidx.lifecycle.LiveData
 import com.example.reslivtest.util.Constants
@@ -22,7 +22,6 @@ class MainRepository(
     }
 
     fun getLastLocation(id: Long): LiveData<LocationData?> = weatherDao.getLastLocation(id)
-
 
     fun getAllLocation(): LiveData<List<LocationData>> = weatherDao.getAllLocation()
 

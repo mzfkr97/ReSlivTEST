@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/navigation_home"
-        android:name="com.example.reslivtest.ui.home.MainFragment"
+        android:name="com.example.reslivtest.ui.main.MainFragment"
         android:label="@string/title_home"
         tools:layout="@layout/fragment_main" />
 
@@ -15,11 +15,11 @@
         android:id="@+id/navigation_dashboard"
         android:name="com.example.reslivtest.ui.city.CityFragment"
         android:label="@string/title_city"
-        tools:layout="@layout/fragment_dashboard" />
+        tools:layout="@layout/fragment_city" />
 
     <fragment
-        android:id="@+id/navigation_notifications"
-        android:name="com.example.reslivtest.ui.notifications.NotificationsFragment"
+        android:id="@+id/navigation_settings"
+        android:name="com.example.reslivtest.ui.notifications.SettingsFragment"
         android:label="@string/title_settings"
-        tools:layout="@layout/fragment_notifications" />
+        tools:layout="@layout/fragment_city"/>
 </navigation>

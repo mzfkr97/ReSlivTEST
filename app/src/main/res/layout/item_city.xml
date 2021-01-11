@@ -18,7 +18,7 @@
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cv_city_item"
         android:onClick="@{() -> cityItemClickListener.onCityItemClick(cityData) }"
-        style="@style/myCardViewStyle.noContentPadding">
+        style="@style/myCardViewStyle">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"

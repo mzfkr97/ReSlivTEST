@@ -11,9 +11,6 @@
         <item name="cardCornerRadius">4dp</item>
 
     </style>
-    <style name="myCardViewStyle.noContentPadding" >
-        <item name="contentPadding">0dp</item>
-    </style>
 
     <style name="textMainTitle">
         <item name="android:textColor">@color/black</item>

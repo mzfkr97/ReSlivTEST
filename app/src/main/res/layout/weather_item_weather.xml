@@ -17,13 +17,12 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        tools:context=".ui.home.MainFragment">
+        android:layout_height="wrap_content">
 
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/materialCardView"
-            style="@style/myCardViewStyle.noContentPadding"
+            style="@style/myCardViewStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="6dp"
@@ -35,7 +34,6 @@
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
-
 
                 <TextView
                     android:id="@+id/text_dot_1"
@@ -54,12 +52,13 @@
                 <TextView
                     android:id="@+id/cityField"
                     style="@style/textMainTitle"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:layout_marginTop="8dp"
                     android:text="@{temperature.name}"
                     android:textSize="30sp"
+                    app:layout_constraintEnd_toStartOf="@+id/tvTemp"
                     app:layout_constraintStart_toEndOf="@+id/text_dot_1"
                     app:layout_constraintTop_toTopOf="parent"
                     tools:ignore="RtlHardcoded"

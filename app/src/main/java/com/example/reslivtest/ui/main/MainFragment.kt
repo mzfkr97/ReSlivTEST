@@ -1,33 +1,36 @@
-package com.example.reslivtest.ui.home
+package com.example.reslivtest.ui.main
 
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.location.Address
-import android.location.Geocoder
 import android.location.LocationManager
 import android.os.Build
 import android.os.Bundle
-import android.os.Looper
 import android.provider.Settings
 import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
+import androidx.work.OneTimeWorkRequest
+import androidx.work.WorkInfo
+import androidx.work.WorkManager
 import com.example.reslivtest.MainActivity
 import com.example.reslivtest.R
 import com.example.reslivtest.databinding.FragmentMainBinding
 import com.example.reslivtest.util.Constants.REQUEST_LOCATION_PERMISSION
 import com.example.reslivtest.util.LocationUtility
+import com.example.reslivtest.util.WorkerManager
+import com.example.reslivtest.util.database.CityDatabase
 import com.example.reslivtest.util.database.LocationData
 import com.example.reslivtest.util.extensions.checkViewVisibleOrGone
+import com.example.reslivtest.util.extensions.showToastyError
 import com.example.reslivtest.util.extensions.showToastyInfo
+import com.example.reslivtest.util.repo.MainModelFactory
 import com.example.reslivtest.util.repo.WeatherResponse
-import com.google.android.gms.location.*
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -38,18 +41,15 @@ import com.google.android.gms.maps.model.MarkerOptions
 import kotlinx.android.synthetic.main.fragment_main.*
 import pub.devrel.easypermissions.AppSettingsDialog
 import pub.devrel.easypermissions.EasyPermissions
-import java.util.*
 
 
 class MainFragment :
-        Fragment(R.layout.fragment_main),
-        EasyPermissions.PermissionCallbacks,
-OnMapReadyCallback{
+    Fragment(R.layout.fragment_main),
+    EasyPermissions.PermissionCallbacks,
+    OnMapReadyCallback {
 
     private lateinit var binding: FragmentMainBinding
     private lateinit var viewModelCity: MainViewModel
-    private lateinit var locationManager: LocationManager
-    private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var locationData: LocationData
     private var mMap: GoogleMap? = null
     private lateinit var latLng: LatLng
@@ -58,26 +58,14 @@ OnMapReadyCallback{
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentMainBinding.bind(view)
+
+        val mainRepository = MainRepository(CityDatabase(activity as MainActivity))
+        val mainViewModelFactory = MainModelFactory(mainRepository)
+        viewModelCity = ViewModelProvider(this, mainViewModelFactory).get(MainViewModel::class.java)
         requestPermissions()
-        viewModelCity = (activity as MainActivity).viewModelCity
-        locationManager =
-                activity?.getSystemService(AppCompatActivity.LOCATION_SERVICE) as LocationManager
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(context as Activity)
         checkLocation()
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
         mapFragment?.getMapAsync(this)
-    }
-
-    private fun loadLocationWeatherFromDatabase() {
-        viewModelCity.loadLocationFromId(1)
-        viewModelCity.lastLocationLiveData.observe(
-            viewLifecycleOwner, Observer { location ->
-                location?.let {
-                    this.locationData = location
-                    loadWeather(location.latitude, location.longitude)
-
-                }
-            })
     }
 
 
@@ -86,8 +74,31 @@ OnMapReadyCallback{
         if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             showAlertLocation()
         }
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(context as Activity)
-        updateLocation()
+
+        val workRequest = OneTimeWorkRequest.Builder(WorkerManager::class.java).build()
+        val mWorkManager = WorkManager.getInstance(activity as MainActivity)
+        mWorkManager.getWorkInfoByIdLiveData(workRequest.id).observe(viewLifecycleOwner,
+            Observer { workStatus ->
+                if (workStatus != null && workStatus.state == WorkInfo.State.SUCCEEDED) {
+                    loadLocationWeatherFromDatabase()
+                }
+            })
+        mWorkManager.beginWith(workRequest).enqueue()
+    }
+
+    private fun loadLocationWeatherFromDatabase() {
+        viewModelCity.lastLocationLiveData.observe(
+            viewLifecycleOwner, Observer { location ->
+                location?.let {
+                    this.locationData = location
+                    loadWeather(locationData)
+                    viewModelCity.saveCurrentLocation(locationData)
+                    val latLng = LatLng(location.latitude, location.longitude)
+                    viewModelCity.loadLatLngFromMap(latLng)
+                    viewModelCity.lastLocationLiveData.removeObservers(viewLifecycleOwner)
+                }
+            })
+        viewModelCity.loadLocationFromId(1)
     }
 
     private fun showAlertLocation() {
@@ -100,85 +111,35 @@ OnMapReadyCallback{
         dialog.setNegativeButton("Отмена") { _, _ ->
             activity?.finish()
         }
-        dialog.setCancelable(false)
+        dialog.setCancelable(true)
         dialog.show()
     }
 
-    private fun stopLocationUpdates() {
-        fusedLocationClient.removeLocationUpdates(locationCallback)
-    }
-
-
-
-    @SuppressLint("MissingPermission")
-    fun updateLocation() {
-        if (LocationUtility.hasLocationPermission(requireContext())) {
-            val request = LocationRequest().apply {
-                interval = 50000
-                fastestInterval = 50000
-                priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-            }
-            fusedLocationClient.requestLocationUpdates(
-                request,
-                locationCallback,
-                Looper.getMainLooper()
-            )
-        } else {
-            fusedLocationClient.removeLocationUpdates(locationCallback)
-        }
-    }
-
-    private val locationCallback = object : LocationCallback() {
-        @SuppressLint("SetTextI18n")
-        override fun onLocationResult(locationResult: LocationResult?) {
-            locationResult ?: return
-            if (locationResult.locations.isNotEmpty()) {
-                val addresses: List<Address>?
-                val geoCoder = Geocoder(activity?.applicationContext, Locale.getDefault())
-                addresses = geoCoder.getFromLocation(
-                    locationResult.lastLocation.latitude,
-                    locationResult.lastLocation.longitude,
-                    1
-                )
-                if (addresses != null && addresses.isNotEmpty()) {
-                    val latitude: Double = addresses[0].latitude
-                    val longitude: Double = addresses[0].longitude
-                    val data = LocationData(1, latitude, longitude)
-                    val loc = LatLng(latitude, longitude)
-                    viewModelCity.loadLocationFromMap(loc)
-                    viewModelCity.saveCurrentLocation(data)
-                    loadWeather(latitude, longitude)
-
-
-                }
-            }
-        }
-    }
 
     @SuppressLint("SetTextI18n")
-    private fun loadWeather(latitude: Double, longitude: Double) {
-        viewModelCity.loadWeather(latitude, longitude)
-                ?.observe(viewLifecycleOwner, Observer { response ->
-                    when (response) {
-                        is WeatherResponse.Success -> {
-                            response.data?.let { weatherResponse ->
-                                showProgress(false, binding.weatherItem.progressBarWeather)
-                                binding.weatherItem.temperature = weatherResponse
-                            }
+    private fun loadWeather(locationData: LocationData) {
+        viewModelCity.loadWeather(locationData)
+            ?.observe(viewLifecycleOwner, Observer { response ->
+                when (response) {
+                    is WeatherResponse.Success -> {
+                        response.data?.let { weatherResponse ->
+                            showProgress(false, binding.weatherItem.progressBarWeather)
+                            binding.weatherItem.temperature = weatherResponse
                             Log.d("TAG", "WeatherResponse")
-                            activity?.showToastyInfo("Данные загружены!")
-                        }
-                        is WeatherResponse.Error -> {
-                            response.message?.let { message ->
-                                showProgress(false, binding.weatherItem.progressBarWeather)
-//                        showErrorMessage()
-                            }
-                        }
-                        is WeatherResponse.Loading -> {
-                            showProgress(show = true, binding.weatherItem.progressBarWeather)
+                            activity?.showToastyInfo(getString(R.string.data_is_loading))
                         }
                     }
-                })
+                    is WeatherResponse.Error -> {
+                        response.message?.let { message ->
+                            showProgress(false, binding.weatherItem.progressBarWeather)
+                            activity?.showToastyError(getString(R.string.error_from_download_data))
+                        }
+                    }
+                    is WeatherResponse.Loading -> {
+                        showProgress(show = true, binding.weatherItem.progressBarWeather)
+                    }
+                }
+            })
     }
 
     private fun showProgress(show: Boolean, view: View) {
@@ -236,8 +197,7 @@ OnMapReadyCallback{
         googleMap?.apply {
             setPadding(0, 0, 0, 200)
             uiSettings.isZoomControlsEnabled = false
-            uiSettings.isMapToolbarEnabled = false //Панель инструментов карты
-            uiSettings.isCompassEnabled = false
+            uiSettings.setAllGesturesEnabled(false)
             setMapStyle(MapStyleOptions.loadRawResourceStyle(activity, R.raw.map_style))
             uiSettings.isRotateGesturesEnabled = false
         }
@@ -250,7 +210,7 @@ OnMapReadyCallback{
                             .position(latLng)
                             .title("Marker in Sydney")
                     )
-                    moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15f))
+                    moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 10f))
 
                 }
             }
@@ -260,14 +220,14 @@ OnMapReadyCallback{
     override fun onPause() {
         map?.onPause()
         super.onPause()
-        stopLocationUpdates()
+        // stopLocationUpdates()
     }
 
 
     override fun onResume() {
         map?.onResume()
         super.onResume()
-        checkLocation()
+        //checkLocation()
     }
 
     override fun onLowMemory() {

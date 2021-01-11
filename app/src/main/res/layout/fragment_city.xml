@@ -23,7 +23,7 @@
 
             <include
                 android:id="@+id/weather_layout"
-                layout="@layout/weather_item"
+                layout="@layout/weather_item_weather"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
