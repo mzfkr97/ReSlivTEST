@@ -12,7 +12,6 @@ import android.provider.Settings
 import android.view.View
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequest
@@ -28,7 +27,7 @@ import com.example.reslivtest.util.database.DataBaseLocationConverter
 import com.example.reslivtest.util.database.LocationResponse
 import com.example.reslivtest.util.extensions.checkViewVisibleOrGone
 import com.example.reslivtest.util.extensions.showToastyError
-import com.example.reslivtest.util.extensions.showToastyInfo
+import com.example.reslivtest.util.extensions.showToastySuccess
 import com.example.reslivtest.util.network.WeatherResponse
 import com.example.reslivtest.util.response.MainModelFactory
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -49,16 +48,18 @@ class MainFragment :
     EasyPermissions.PermissionCallbacks,
     OnMapReadyCallback {
 
-    private lateinit var binding: FragmentMainBinding
+    private var _binding: FragmentMainBinding? = null
     private lateinit var viewModelCity: MainViewModel
     private lateinit var locationResponse: LocationResponse
     private var mMap: GoogleMap? = null
     private lateinit var latLng: LatLng
+    private val binding get() = _binding!!
+
 
     @SuppressLint("MissingPermission")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding = FragmentMainBinding.bind(view)
+        _binding = FragmentMainBinding.bind(view)
 
         val mainRepository = MainRepository(CityDatabase(activity as MainActivity))
         val mainViewModelFactory = MainModelFactory(mainRepository)
@@ -95,7 +96,7 @@ class MainFragment :
         val workManager = WorkManager.getInstance(activity as MainActivity)
         workManager
             .getWorkInfoByIdLiveData(periodicRequest.id)
-            .observe(viewLifecycleOwner, Observer { workStatus ->
+            .observe(viewLifecycleOwner, { workStatus ->
                 if (workStatus != null && workStatus.state == WorkInfo.State.SUCCEEDED) {
                     loadLocationWeatherTODatabase()
                 }
@@ -109,7 +110,7 @@ class MainFragment :
 
     private fun loadLocationWeatherTODatabase() {
         viewModelCity.lastDBLocationLiveData.observe(
-            viewLifecycleOwner, Observer { location ->
+            viewLifecycleOwner, { location ->
                 location?.let {
                     this.locationResponse = location
                     binding.weatherItem.locationResponse = locationResponse
@@ -123,25 +124,10 @@ class MainFragment :
         viewModelCity.loadLocationFromId(1)
     }
 
-    private fun showAlertLocation() {
-        val dialog = AlertDialog.Builder(context as Activity)
-        dialog.setMessage(getString(R.string.location_is_disable))
-        dialog.setPositiveButton(getString(R.string.title_settings)) { _, _ ->
-            val myIntent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
-            startActivity(myIntent)
-        }
-        dialog.setNegativeButton(getString(R.string.cancell)) { _, _ ->
-            activity?.finish()
-        }
-        dialog.setCancelable(true)
-        dialog.show()
-    }
 
-
-    @SuppressLint("SetTextI18n")
     private fun loadWeather(locationResponse: LocationResponse) {
         viewModelCity.loadWeather(locationResponse.latitude, locationResponse.longitude)
-            ?.observe(viewLifecycleOwner, Observer { response ->
+            ?.observe(viewLifecycleOwner, { response ->
                 when (response) {
                     is WeatherResponse.Success -> {
                         response.data?.let { weatherResponse ->
@@ -152,11 +138,11 @@ class MainFragment :
                                         weatherResponse
                                     )
                             }
-                            activity?.showToastyInfo(getString(R.string.data_is_loading))
+                            activity?.showToastySuccess(getString(R.string.data_is_loading))
                         }
                     }
                     is WeatherResponse.Error -> {
-                        response.message?.let { message ->
+                        response.message?.let { _ ->
                             showProgress(false, binding.weatherItem.progressBarWeather)
                             activity?.showToastyError(getString(R.string.error_from_download_data))
                         }
@@ -170,6 +156,21 @@ class MainFragment :
 
     private fun showProgress(show: Boolean, view: View) {
         checkViewVisibleOrGone(show, view)
+    }
+
+
+    private fun showAlertLocation() {
+        val dialog = AlertDialog.Builder(context as Activity)
+        dialog.setMessage(getString(R.string.location_is_disable))
+        dialog.setPositiveButton(getString(R.string.title_settings)) { _, _ ->
+            val myIntent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+            startActivity(myIntent)
+        }
+        dialog.setNegativeButton(getString(R.string.cancell)) { _, _ ->
+            activity?.finish()
+        }
+        dialog.setCancelable(true)
+        dialog.show()
     }
 
     private fun requestPermissions() {
@@ -233,7 +234,7 @@ class MainFragment :
             }
 
         }
-        viewModelCity.locationLiveData.observe(viewLifecycleOwner, Observer { ltLng ->
+        viewModelCity.locationLiveData.observe(viewLifecycleOwner, { ltLng ->
             ltLng?.let {
                 this.latLng = ltLng
                 googleMap?.apply {
@@ -247,6 +248,11 @@ class MainFragment :
                 }
             }
         })
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     override fun onPause() {

@@ -68,9 +68,10 @@ class SettingsFragment :
                 activity?.showToastySuccess(getString(R.string.time_changed))
             }
             Constants.THEME_KEY -> {
-                val themeName: String = preference?.getString(Constants.THEME_KEY, Constants.THEME_LIGHT).toString()
+                val themeName: String =
+                    preference?.getString(Constants.THEME_KEY, Constants.THEME_LIGHT).toString()
                 ThemeHelper.applyTheme(themeName)
-                activity?.showToastySuccess("Тема изменена!")
+                activity?.showToastySuccess(getString(R.string.theme_changed))
             }
         }
     }

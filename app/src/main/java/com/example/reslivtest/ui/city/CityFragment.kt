@@ -1,12 +1,10 @@
 package com.example.reslivtest.ui.city
 
 import android.annotation.SuppressLint
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.View
 import android.widget.EditText
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -28,13 +26,13 @@ class CityFragment :
     Fragment(R.layout.fragment_city) {
 
     private lateinit var cityAdapter: CityAdapter
-    private lateinit var binding: FragmentCityBinding
-    private lateinit var viewModel : CityViewModel
-    private lateinit var preferences: SharedPreferences
+    private var _binding: FragmentCityBinding? = null
+    private lateinit var viewModel: CityViewModel
+    private val binding get() = _binding!!
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding = FragmentCityBinding.bind(view)
+        _binding = FragmentCityBinding.bind(view)
         val mainRepository = CityRepository(CityDatabase(activity as MainActivity))
         val mainViewModelFactory = CityModelFactory(mainRepository)
         viewModel =  ViewModelProvider(this, mainViewModelFactory).get(CityViewModel::class.java)
@@ -59,7 +57,7 @@ class CityFragment :
 
     private fun updateUI(){
         viewModel.weatherListLiveData.observe(
-            viewLifecycleOwner, Observer { weatherList ->
+            viewLifecycleOwner, { weatherList ->
                 weatherList?.let {
                     cityAdapter = CityAdapter(CityAdapter.CityItemClickListener { item ->
                         item?.let { onItemClick(it) }
@@ -120,31 +118,36 @@ class CityFragment :
     @SuppressLint("SetTextI18n")
     private fun loadWeather(cityName: String) {
         viewModel.loadWeatherFromId(cityName)
-                ?.observe(viewLifecycleOwner, Observer { response ->
-                    when (response) {
-                        is WeatherResponse.Success -> {
-                            response.data?.let { weatherResponse ->
-                                showProgress(false, binding.weatherLayout.progressBarWeather)
-                                binding.weatherLayout.temperature = weatherResponse
-                                activity?.showToastyInfo("Данные загружены!")
-                            }
-                        }
-                        is WeatherResponse.Error -> {
-                            response.message?.let { message ->
-                                showProgress(false, binding.weatherLayout.progressBarWeather)
-                                activity?.showToastyError(message)
-                            }
-                        }
-                        is WeatherResponse.Loading -> {
-                            showProgress(show = true, binding.weatherLayout.progressBarWeather)
+            ?.observe(viewLifecycleOwner, { response ->
+                when (response) {
+                    is WeatherResponse.Success -> {
+                        response.data?.let { weatherResponse ->
+                            showProgress(false, binding.weatherLayout.progressBarWeather)
+                            binding.weatherLayout.temperature = weatherResponse
+                            activity?.showToastyInfo("Данные загружены!")
                         }
                     }
-                })
+                    is WeatherResponse.Error -> {
+                        response.message?.let { message ->
+                            showProgress(false, binding.weatherLayout.progressBarWeather)
+                            activity?.showToastyError(message)
+                        }
+                    }
+                    is WeatherResponse.Loading -> {
+                        showProgress(show = true, binding.weatherLayout.progressBarWeather)
+                    }
+                }
+            })
     }
 
 
     private fun showProgress(show: Boolean, view: View) {
         checkViewVisibleOrGone(show, view)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
 }

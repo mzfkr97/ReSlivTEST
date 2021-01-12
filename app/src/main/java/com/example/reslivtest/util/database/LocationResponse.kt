@@ -20,8 +20,7 @@ class LocationResponse(
     val windSpeed: Double? = 0.00
 
 ) {
-    val iconUrl
-        get() = "http://openweathermap.org/img/wn/$icon@2x.png"
+
     val tempWithDegree: String
         get() = temp?.toInt().toString()
 }

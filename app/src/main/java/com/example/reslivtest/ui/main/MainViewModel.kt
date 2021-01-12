@@ -1,7 +1,6 @@
 package com.example.reslivtest.ui.main
 
 
-import android.util.Log
 import androidx.lifecycle.*
 import com.example.reslivtest.util.application.MyApplication
 import com.example.reslivtest.util.database.LocationResponse
@@ -22,7 +21,6 @@ class MainViewModel(
 
     var lastDBLocationLiveData: LiveData<LocationResponse?> =
         Transformations.switchMap(locationIdLiveData) { locationId ->
-            Log.d("TAG", "Transformations: ")
             repository.getLastLocation(locationId)
         }
 

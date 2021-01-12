@@ -25,4 +25,5 @@
     <string name="cancell">Отмена</string>
     <string name="need_access_to_location">Чтобы использовать это приложение, вам необходимо принять разрешения на местоположение</string>
     <string name="you_is_here">Ваше местоположение</string>
+    <string name="theme_changed">Тема изменена!</string>
 </resources>
