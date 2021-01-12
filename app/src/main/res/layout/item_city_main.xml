@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+
+    <data>
+
+        <import type="android.text.TextUtils" />
+
+        <variable
+            name="temperature"
+            type="com.example.reslivtest.util.weather_response.WeatherCall" />
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/materialCardView"
+            style="@style/myCardViewStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:foreground="?attr/selectableItemBackground"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+
+                <TextView
+                    android:id="@+id/text_dot_1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:alpha="0.7"
+                    android:fontFamily="@font/font_awesome"
+                    android:text="@string/fa_location"
+                    android:textColor="?attr/colorAccent"
+                    android:textSize="18sp"
+                    app:layout_constraintBottom_toBottomOf="@+id/cityField"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/cityField" />
+
+                <TextView
+                    android:id="@+id/cityField"
+                    style="@style/textMainTitle"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="8dp"
+                    android:text="@{temperature.name}"
+                    android:textSize="30sp"
+                    app:layout_constraintEnd_toStartOf="@+id/tvTemp"
+                    app:layout_constraintStart_toEndOf="@+id/text_dot_1"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:ignore="RtlHardcoded"
+                    tools:text="Слуцк" />
+
+                <ProgressBar
+                    android:id="@+id/progressBarWeather"
+                    style="@style/Widget.AppCompat.ProgressBar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:indeterminate="true"
+                    android:visibility="invisible"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:visibility="visible" />
+
+                <ImageView
+                    android:id="@+id/imageWeather"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:scaleType="center"
+                    android:src="@drawable/weather_placeholder"
+                    app:layout_constraintBottom_toTopOf="@+id/getOpenWeatherTextView"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/cityField"
+                    app:loadImageWithUrl="@{temperature.iconUrl}"
+                    app:srcCompat="@drawable/weather_placeholder"
+                    tools:ignore="ContentDescription" />
+
+                <TextView
+                    android:id="@+id/getOpenWeatherTextView"
+                    style="@style/textMainTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginBottom="4dp"
+                    android:autoLink="none"
+                    android:text="@{temperature.description}"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    tools:ignore="SmallSp"
+                    tools:targetApi="m"
+                    tools:text="Облачно с прояснениями" />
+
+                <TextView
+                    android:id="@+id/tvTemp"
+                    style="@style/textMainTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:fontFamily="sans-serif-smallcaps"
+                    android:text="@{TextUtils.isEmpty(temperature.tempWithDegree) ? @string/empty : temperature.tempWithDegree  + ` ℃`}"
+                    android:textColor="?attr/colorAccent"
+                    android:textSize="36sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:text="22" />
+
+
+                <TextView
+                    android:id="@+id/textCurrency"
+                    style="@style/textMainTitle"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginBottom="8dp"
+                    android:autoLink="none"
+                    android:textAlignment="textEnd"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/getOpenWeatherTextView"
+                    app:layout_constraintTop_toBottomOf="@+id/tvTemp"
+                    app:setTextCity="@{temperature}"
+                    tools:text="Скорость ветра" />
+
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
