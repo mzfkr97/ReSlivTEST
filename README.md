@@ -14,5 +14,6 @@
 * Live Data
 * Custom Library
 * Google Maps
+* Notification
 
 ![ScreenShot](screenShot.PNG)
