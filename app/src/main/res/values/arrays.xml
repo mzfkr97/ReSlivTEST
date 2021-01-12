@@ -9,4 +9,16 @@
         <item>no</item>
         <item>yes</item>
     </string-array>
+
+
+    <string-array name="entries_theme_name">
+        <item>Светлая</item>
+        <item>Темная</item>
+    </string-array>
+
+    <string-array name="entry_values_theme">
+        <item>Theme_Light</item>
+        <item>Theme_Night</item>
+    </string-array>
+
 </resources>

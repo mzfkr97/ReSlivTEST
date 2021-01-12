@@ -15,6 +15,9 @@
     <string name="messages_header">Основные</string>
     <string name="sync_header">Sync</string>
 
+    <string name="shortcut_label_main">Локация</string>
+    <string name="shortcut_label_city">Города</string>
+
     <!-- Messages Preferences -->
     <string name="signature_title">Your signature</string>
     <string name="update_time">Обновлять в фоне</string>

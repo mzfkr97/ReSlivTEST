@@ -19,5 +19,14 @@
             app:summary="База данных будет перезаписана"
             app:title="Очистить кэш" />
 
+    <ListPreference
+        app:entries="@array/entries_theme_name"
+        app:entryValues="@array/entry_values_theme"
+        app:key="list_theme"
+        app:summary="Theme_Light"
+        app:useSimpleSummaryProvider="true"
+        app:title="Цветовая тема">
+    </ListPreference>
+
 
 </PreferenceScreen>

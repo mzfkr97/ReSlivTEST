@@ -1,0 +1,28 @@
+<shortcuts xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <shortcut
+        android:shortcutId="shortMain"
+        android:enabled="true"
+        android:shortcutShortLabel="@string/shortcut_label_main"
+        tools:targetApi="n_mr1">
+        <intent
+            android:action="com.example.reslivtest.ACTION_MAIN"
+            android:targetPackage="com.example.reslivtest"
+            android:targetClass="com.example.reslivtest.MainActivity" />
+        <categories android:name="android.shortcut.conversation" />
+    </shortcut>
+
+    <shortcut
+        android:shortcutId="shortCity"
+        android:enabled="true"
+        android:shortcutShortLabel="@string/shortcut_label_city"
+        tools:targetApi="n_mr1">
+        <intent
+            android:action="com.example.reslivtest.ACTION_CITY"
+            android:targetPackage="com.example.reslivtest"
+            android:targetClass="com.example.reslivtest.MainActivity" />
+        <categories android:name="android.shortcut.conversation" />
+    </shortcut>
+
+</shortcuts>

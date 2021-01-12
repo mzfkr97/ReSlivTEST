@@ -68,9 +68,13 @@ class MainFragment :
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
         mapFragment?.getMapAsync(this)
 
-        val isPolling = WorkerPreferences.workerIsEnable(requireContext())
-        when(isPolling == "yes"){
-            true ->{ createPeriodicWorker() }
+        val isWorkerEnable = PreferencesHelper.workerIsEnable(requireActivity())
+        when(isWorkerEnable == "yes"){
+            true -> {
+                createPeriodicWorker()
+            } else -> {
+            WorkManager.getInstance(activity as MainActivity).cancelUniqueWork(Constants.WORKER_TAG)
+            }
         }
     }
 
@@ -176,7 +180,7 @@ class MainFragment :
             EasyPermissions.requestPermissions(
                 this,
                 getString(R.string.need_access_to_location),
-               REQUEST_LOCATION_PERMISSION,
+                REQUEST_LOCATION_PERMISSION,
                 Manifest.permission.ACCESS_COARSE_LOCATION,
                 Manifest.permission.ACCESS_FINE_LOCATION
             )
@@ -216,12 +220,18 @@ class MainFragment :
 
     override fun onMapReady(googleMap: GoogleMap?) {
         this.mMap = googleMap
+        val style = MapStyleOptions.loadRawResourceStyle(this.context, R.raw.map_style_dark)
         googleMap?.apply {
             setPadding(0, 0, 0, 200)
             uiSettings.isZoomControlsEnabled = false
             uiSettings.setAllGesturesEnabled(false)
             setMapStyle(MapStyleOptions.loadRawResourceStyle(activity, R.raw.map_style))
             uiSettings.isRotateGesturesEnabled = false
+            when (PreferencesHelper.nightModeEnable(requireActivity())){
+                true ->
+                    setMapStyle(style)
+            }
+
         }
         viewModelCity.locationLiveData.observe(viewLifecycleOwner, Observer { ltLng ->
             ltLng?.let {

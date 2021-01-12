@@ -12,7 +12,7 @@
         tools:layout="@layout/fragment_main" />
 
     <fragment
-        android:id="@+id/navigation_dashboard"
+        android:id="@+id/navigation_city"
         android:name="com.example.reslivtest.ui.city.CityFragment"
         android:label="@string/title_city"
         tools:layout="@layout/fragment_city" />
