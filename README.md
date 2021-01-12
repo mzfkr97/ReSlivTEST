@@ -13,3 +13,4 @@
 * Work Manager
 * Live Data
 * Custom Library
+* Google Maps
